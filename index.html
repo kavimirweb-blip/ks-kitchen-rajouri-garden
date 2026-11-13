@@ -86,13 +86,16 @@ nav .btn{min-height:44px;padding:.4em 1.2em;font-size:.85rem}
 .sw{display:inline-flex;border-radius:99px;border:2px solid currentColor;padding:4px;gap:4px;width:max-content}
 .sw button{font:inherit;font-weight:700;cursor:pointer;min-height:46px;padding:.5em 1.5em;border-radius:99px;border:0;background:transparent;color:inherit;transition:background .3s,color .3s}
 .sw button[aria-selected=true]{background:var(--tint-ink);color:var(--tint)}
+.menu .top .sw,.menu .top .shot{grid-column:2}
+.shot{margin-top:22px;border-radius:200px 200px 24px 24px;overflow:hidden;aspect-ratio:4/3;max-width:420px}
+.shot img{width:100%;height:100%;object-fit:cover;display:block;animation:up .6s var(--ease)}
 .items{display:grid;grid-template-columns:1fr 1fr;gap:0 5vw}
 .item{padding:22px 0;border-top:1px solid color-mix(in srgb,var(--tint-ink) 25%,transparent);animation:up .5s var(--ease) both}
 .item h3{font-size:clamp(1.6rem,2.8vw,2.5rem);margin-bottom:4px}
 .item p{font-size:.95rem;opacity:.78;max-width:38ch}
 @keyframes up{from{opacity:0;transform:translateY(14px)}}
 .menu .note{margin-top:30px;font-size:.9rem;opacity:.75}
-@media(max-width:860px){.menu .top{grid-template-columns:1fr}.items{grid-template-columns:1fr}}
+@media(max-width:860px){.menu .top{grid-template-columns:1fr}.menu .top .sw,.menu .top .shot{grid-column:auto}.items{grid-template-columns:1fr}}
 
 /* story: split offset */
 .story{padding:clamp(80px,11vw,150px) var(--gut);display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center}
@@ -103,7 +106,11 @@ nav .btn{min-height:44px;padding:.4em 1.2em;font-size:.85rem}
 .pair .a,.pair .b{position:absolute;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-style:italic}
 .pair .a{width:68%;aspect-ratio:1;left:0;top:0;background:var(--olive);color:var(--cream);font-size:clamp(2rem,5vw,3.6rem);transform:rotate(-8deg)}
 .pair .b{width:58%;aspect-ratio:1;right:0;bottom:0;background:var(--esp);color:var(--cream);font-size:clamp(2rem,5vw,3.6rem);transform:rotate(6deg)}
-.pair .amp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-size:clamp(4rem,12vw,9rem);color:var(--cream);z-index:2;text-shadow:0 0 0 var(--cream);mix-blend-mode:difference}
+.pair .a,.pair .b{overflow:hidden}
+.pair img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05)}
+.pair .a::after,.pair .b::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(20,14,8,.55))}
+.pair b{position:absolute;z-index:2;bottom:12%;left:0;right:0;text-align:center;font-weight:400;color:var(--cream);font-size:clamp(1.6rem,4vw,2.8rem)}
+.pair .amp{z-index:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--serif);font-style:italic;font-size:clamp(4rem,12vw,9rem);color:var(--cream);z-index:2;text-shadow:0 0 0 var(--cream);mix-blend-mode:difference}
 @media(max-width:860px){.story{grid-template-columns:1fr}}
 
 /* visit */
@@ -177,6 +184,7 @@ footer .r{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;mar
       <button role="tab" aria-selected="true" data-m="kitchen">The kitchen</button>
       <button role="tab" aria-selected="false" data-m="beans">The beans</button>
     </div>
+    <figure class="shot"><img id="shot" src="img/toast.jpg" alt="Toast with cream cheese, olives and herbs"></figure>
   </div>
   <div class="items" id="items" role="tabpanel" aria-live="polite"></div>
   <p class="note">A taste of what we make. Message us for today's full menu and prices.</p>
@@ -188,7 +196,7 @@ footer .r{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;mar
     <h2 style="margin-top:14px">One for the kitchen. <em>One for the cup.</em></h2>
     <p>Olives for the table, beans for the cup. Everything on the menu comes from one of the two.</p>
   </div>
-  <div class="pair rv" aria-hidden="true"><div class="a">olives</div><div class="b">beans</div><span class="amp">&amp;</span></div>
+  <div class="pair rv"><div class="a"><img src="img/olives.jpg" alt="Bowls of olives with bread and olive oil" loading="lazy"><b>olives</b></div><div class="b"><img src="img/coffee.jpg" alt="Two green mugs of coffee with plants" loading="lazy"><b>beans</b></div><span class="amp" aria-hidden="true">&amp;</span></div>
 </section>
 
 <section class="visit" id="visit">
@@ -226,7 +234,9 @@ footer .r{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;mar
    beans:[["Espresso","Short, strong and unfussy."],["Americano","Long and clean."],["Cappuccino","Foam on top, balanced below."],["Latte","Soft, milky, easy to finish."],["Cold coffee","Iced, sweet, and made for Delhi afternoons."],["Hot chocolate","For the ones who skip the coffee."]]
   };
   var sec=document.getElementById('menu'),box=document.getElementById('items');
-  function draw(k){sec.dataset.m=k;box.innerHTML=M[k].map(function(r,i){return '<div class="item" style="animation-delay:'+i*60+'ms"><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div>'}).join('')}
+  var IMG={kitchen:['img/toast.jpg','Toast with cream cheese, olives and herbs'],beans:['img/latte.jpg','Latte with art held in both hands']};
+  var shot=document.getElementById('shot');
+  function draw(k){sec.dataset.m=k;var n=new Image();shot.replaceWith(n);n.id='shot';n.src=IMG[k][0];n.alt=IMG[k][1];shot=n;box.innerHTML=M[k].map(function(r,i){return '<div class="item" style="animation-delay:'+i*60+'ms"><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div>'}).join('')}
   draw('kitchen');
   document.querySelectorAll('.sw button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.sw button').forEach(function(x){x.setAttribute('aria-selected',x===b)});draw(b.dataset.m)})});
 
